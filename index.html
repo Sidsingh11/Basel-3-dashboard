@@ -7,12 +7,57 @@
 </head>
 <body>
   <h1>Basel III Stress Test Dashboard</h1>
-  <div id="capital-buffer-chart"></div>
-  <div id="loss-metrics-table"></div>
+
+  <h2>📊 Capital Buffer Comparison (Before vs After Modeling)</h2>
+  <div id="capital-buffer-chart" style="width: 90%; max-width: 1000px; height: 400px;"></div>
+
+  <h2>📋 Credit Portfolio Loss Metrics (PD × LGD × EAD)</h2>
+  <div id="loss-table"></div>
 
   <script>
-    // JavaScript code to generate charts and tables using Plotly
-    // Include your synthetic data and visualization logic here
+    // --- Capital Buffer Bar Chart ---
+    var scenarios = ['Baseline', 'Adverse', 'Severely Adverse', 'Crisis Recession', 'Extreme Shock'];
+    var preModel = [8.5, 6.7, 5.2, 4.5, 3.9];
+    var postModel = [10.7, 8.4, 6.6, 5.7, 4.9];
+
+    var bufferChart = [
+      { x: scenarios, y: preModel, name: 'Before Modeling', type: 'bar' },
+      { x: scenarios, y: postModel, name: 'After Modeling (+26%)', type: 'bar' }
+    ];
+
+    var bufferLayout = {
+      barmode: 'group',
+      title: 'Capital Buffer (%) by Scenario',
+      yaxis: { title: 'Capital Buffer (%)' }
+    };
+
+    Plotly.newPlot('capital-buffer-chart', bufferChart, bufferLayout);
+
+    // --- PD, LGD, EAD, EL Table ---
+    var pd = [0.04, 0.06, 0.09, 0.12, 0.15];    // 4% to 15%
+    var lgd = [0.45, 0.50, 0.55, 0.60, 0.65];   // 45% to 65%
+    var ead = [500, 480, 460, 430, 400];        // in million USD
+    var el = pd.map((p, i) => (p * lgd[i] * ead[i]).toFixed(2));
+
+    var tableData = [{
+      type: 'table',
+      header: {
+        values: [['Scenario'], ['PD'], ['LGD'], ['EAD (M USD)'], ['Expected Loss (M USD)']],
+        align: 'center',
+        line: {width: 1, color: 'black'},
+        fill: {color: 'lightgray'},
+        font: {size: 13}
+      },
+      cells: {
+        values: [scenarios, pd, lgd, ead, el],
+        align: 'center',
+        fill: {color: ['white', 'white']},
+        line: {color: "black", width: 0.5},
+        font: {size: 12}
+      }
+    }];
+
+    Plotly.newPlot('loss-table', tableData);
   </script>
 </body>
 </html>
